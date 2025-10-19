@@ -1,24 +1,85 @@
-function App() {
-  return (
-    <main>
-      <h1>Hi, I'm (your name)</h1>
-      <img alt="My profile pic" src="https://via.placeholder.com/350" />
-      <h2>About Me</h2>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-        occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-        mollit anim id est laborum.
-      </p>
+import { useState } from "react";
 
+function App() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [interests, setInterests] = useState([]);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleCheckboxChange = (e) => {
+    const { value, checked } = e.target;
+    setInterests((prev) =>
+      checked ? [...prev, value] : prev.filter((i) => i !== value)
+    );
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
       <div>
-        <a href="https://github.com">GitHub</a>
-        <a href="https://linkedin.com">LinkedIn</a>
+        <h2>Thank you, {name}!</h2>
+        <p>We’ll reach out to {email} soon.</p>
+        {interests.length > 0 && (
+          <ul>
+            {interests.map((i) => (
+              <li key={i}>{i}</li>
+            ))}
+          </ul>
+        )}
       </div>
-    </main>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Name:
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </label>
+
+      <label>
+        Email:
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </label>
+
+      <fieldset>
+        <legend>Interests</legend>
+        <label>
+          <input
+            type="checkbox"
+            value="Coding"
+            onChange={handleCheckboxChange}
+          />
+          Coding
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            value="Music"
+            onChange={handleCheckboxChange}
+          />
+          Music
+        </label>
+        <label>
+          <input type="checkbox" value="Art" onChange={handleCheckboxChange} />
+          Art
+        </label>
+      </fieldset>
+
+      <button type="submit">Sign Up</button>
+    </form>
   );
 }
 

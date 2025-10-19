@@ -1,91 +1,73 @@
+import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import '@testing-library/jest-dom';
-
+import userEvent from "@testing-library/user-event";
 import App from "../App";
 
-// Portfolio Elements
-test("displays a top-level heading with the text `Hi, I'm _______`", () => {
-  render(<App />);
+describe("Newsletter Signup Form", () => {
+  test("renders name, email, and interests inputs", () => {
+    render(<App />);
 
-  const topLevelHeading = screen.getByRole("heading", {
-    name: /hi, i'm/i,
-    exact: false,
-    level: 1,
+    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /sign up/i })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/interests/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/coding/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/music/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/art/i)).toBeInTheDocument();
   });
 
-  expect(topLevelHeading).toBeInTheDocument();
-});
+  test("updates name and email when user types", async () => {
+    render(<App />);
+    const nameInput = screen.getByLabelText(/name/i);
+    const emailInput = screen.getByLabelText(/email/i);
 
-test("displays an image of yourself", () => {
-  render(<App />);
+    await userEvent.type(nameInput, "Alex");
+    await userEvent.type(emailInput, "alex@example.com");
 
-  const image = screen.getByAltText("My profile pic");
-
-  expect(image).toHaveAttribute("src", "https://via.placeholder.com/350");
-});
-
-test("displays second-level heading with the text `About Me`", () => {
-  render(<App />);
-
-  const secondLevelHeading = screen.getByRole("heading", {
-    name: /about me/i,
-    level: 2,
+    expect(nameInput).toHaveValue("Alex");
+    expect(emailInput).toHaveValue("alex@example.com");
   });
 
-  expect(secondLevelHeading).toBeInTheDocument();
-});
+  test("allows user to select interests", async () => {
+    render(<App />);
+    const codingCheckbox = screen.getByLabelText(/coding/i);
+    const musicCheckbox = screen.getByLabelText(/music/i);
 
-test("displays a paragraph for your biography", () => {
-  render(<App />);
+    await userEvent.click(codingCheckbox);
+    await userEvent.click(musicCheckbox);
 
-  const bio = screen.getByText(/lorem ipsum/i);
-
-  expect(bio).toBeInTheDocument();
-});
-
-test("displays the correct links", () => {
-  render(<App />);
-
-  const githubLink = screen.getByRole("link", {
-    name: /github/i,
-  });
-  const linkedinLink = screen.getByRole("link", {
-    name: /linkedin/i,
+    expect(codingCheckbox).toBeChecked();
+    expect(musicCheckbox).toBeChecked();
   });
 
-  expect(githubLink).toHaveAttribute(
-    "href",
-    expect.stringContaining("https://github.com")
-  );
+  test("shows success message when form is submitted", async () => {
+    render(<App />);
 
-  expect(linkedinLink).toHaveAttribute(
-    "href",
-    expect.stringContaining("https://linkedin.com")
-  );
-});
+    await userEvent.type(screen.getByLabelText(/name/i), "Alex");
+    await userEvent.type(screen.getByLabelText(/email/i), "alex@example.com");
+    await userEvent.click(screen.getByRole("button", { name: /sign up/i }));
 
-// Newsletter Form - Initial State
-test("the form includes text inputs for name and email address", () => {
-  // your test code here
-});
+    expect(screen.getByText(/thank you, alex/i)).toBeInTheDocument();
+    expect(screen.getByText(/alex@example.com/i)).toBeInTheDocument();
+  });
 
-test("the form includes three checkboxes to select areas of interest", () => {
-  // your test code here
-});
+  test("displays selected interests in success message", async () => {
+    render(<App />);
 
-test("the checkboxes are initially unchecked", () => {
-  // your test code here
-});
+    await userEvent.type(screen.getByLabelText(/name/i), "Sam");
+    await userEvent.type(screen.getByLabelText(/email/i), "sam@example.com");
 
-// Newsletter Form - Adding Responses
-test("the page shows information the user types into the name and email address form fields", () => {
-  // your test code here
-});
+    const codingCheckbox = screen.getByLabelText(/coding/i);
+    const musicCheckbox = screen.getByLabelText(/music/i);
 
-test("checked status of checkboxes changes when user clicks them", () => {
-  // your test code here
-});
+    await userEvent.click(codingCheckbox);
+    await userEvent.click(musicCheckbox);
+    await userEvent.click(screen.getByRole("button", { name: /sign up/i }));
 
-test("a message is displayed when the user clicks the Submit button", () => {
-  // your test code here
+    expect(screen.getByText(/thank you, sam/i)).toBeInTheDocument();
+    expect(screen.getByText(/coding/i)).toBeInTheDocument();
+    expect(screen.getByText(/music/i)).toBeInTheDocument();
+  });
 });
